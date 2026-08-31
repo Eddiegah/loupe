@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { judgeOutput, createAnthropicJudgeClient } from "../judge";
+import { judgeOutput, createGroqJudgeClient } from "../judge";
 
-const hasApiKey = Boolean(process.env.ANTHROPIC_API_KEY);
+const hasApiKey = Boolean(process.env.GROQ_API_KEY);
 
 const RUBRIC =
   "The answer must correctly explain how to authenticate a webhook request against this API: it must mention verifying the X-Signature header using an HMAC-SHA256 signature computed with the account's webhook secret, and must NOT invent any endpoint, header, or mechanism that isn't in the docs.";
@@ -39,7 +39,7 @@ const cases: { label: string; output: string; expectRange: [number, number] }[] 
 // still passes everything else.
 describe.skipIf(!hasApiKey)("judgeOutput: calibration against known-good and known-bad answers", () => {
   it.each(cases)("scores a $label answer in the expected range", async ({ output, expectRange }) => {
-    const client = createAnthropicJudgeClient();
+    const client = createGroqJudgeClient();
     const verdict = await judgeOutput(client, RUBRIC, output);
     expect(verdict.score).toBeGreaterThanOrEqual(expectRange[0]);
     expect(verdict.score).toBeLessThanOrEqual(expectRange[1]);
@@ -47,7 +47,7 @@ describe.skipIf(!hasApiKey)("judgeOutput: calibration against known-good and kno
   }, 30000);
 
   it("separates an obviously-correct answer from an obviously-fabricated one by a wide margin", async () => {
-    const client = createAnthropicJudgeClient();
+    const client = createGroqJudgeClient();
     const good = await judgeOutput(client, RUBRIC, cases[0].output);
     const bad = await judgeOutput(client, RUBRIC, cases[1].output);
     // The actual proof this test exists for: the judge must discriminate,

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Tracer } from "../src/lib/tracing/tracer";
-import { wrapMessagesCreate, type AnthropicMessagesClient } from "../src/lib/tracing/anthropic";
+import { wrapChatCompletion, type GroqChatClient } from "../src/lib/tracing/groq";
 import type { ToolDefinition } from "../src/lib/tracing/toolLoop";
 
 const KB_DIR = path.join(process.cwd(), "demo-agent", "knowledge-base");
@@ -94,14 +94,14 @@ function evaluateExpression(expr: string): number {
   return result;
 }
 
-export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesClient; model: string }): ToolDefinition[] {
+export function createTools(opts: { tracer: Tracer; client: GroqChatClient; model: string }): ToolDefinition[] {
   const index = loadIndex();
-  const traced = wrapMessagesCreate(opts.client, opts.tracer);
+  const traced = wrapChatCompletion(opts.client, opts.tracer);
 
   const searchDocs: ToolDefinition = {
     name: "search_docs",
     description: "Keyword-search the API documentation. Returns matching doc ids, titles, and short summaries.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { query: { type: "string", description: "Search keywords" } },
       required: ["query"],
@@ -120,7 +120,7 @@ export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesCli
   const fetchDetail: ToolDefinition = {
     name: "fetch_detail",
     description: "Fetch the full content of one documentation page by its doc id (from search_docs results).",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { docId: { type: "string", description: "The doc id, e.g. 'webhooks'" } },
       required: ["docId"],
@@ -130,8 +130,9 @@ export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesCli
       if (!index.some((entry) => entry.id === docId)) {
         // The deliberate, realistic failure mode: the model occasionally
         // guesses a doc id that doesn't exist. Thrown here, caught by the
-        // tool loop, and turned into an is_error tool_result so the model
-        // sees the mistake and can retry with a real id from search_docs.
+        // tool loop, and turned into an error-prefixed tool message so the
+        // model sees the mistake and can retry with a real id from
+        // search_docs.
         throw new Error(`No such doc id "${docId}". Call search_docs first to find a valid id.`);
       }
       return { content: loadDoc(docId) };
@@ -141,7 +142,7 @@ export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesCli
   const calculate: ToolDefinition = {
     name: "calculate",
     description: "Evaluate an arithmetic expression (+ - * / and parentheses only). Use this for any numeric computation instead of doing the math yourself.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { expression: { type: "string", description: "e.g. '100 * 90 / 60'" } },
       required: ["expression"],
@@ -154,7 +155,7 @@ export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesCli
   const summarize: ToolDefinition = {
     name: "summarize",
     description: "Summarize a long piece of text down to at most maxWords words. Use this when a doc is too long to quote in full.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { text: { type: "string" }, maxWords: { type: "number" } },
       required: ["text", "maxWords"],
@@ -165,17 +166,12 @@ export function createTools(opts: { tracer: Tracer; client: AnthropicMessagesCli
       // A second, cheaper LLM call, nested inside this tool_call span -
       // this is what gives the trace waterfall real nesting instead of a
       // flat list of sibling calls.
-      const response = await traced.messages.create({
+      const response = await traced.chat.completions.create({
         model: opts.model,
         max_tokens: 200,
         messages: [{ role: "user", content: `Summarize the following in at most ${maxWords} words:\n\n${text}` }],
       });
-      const content = response.content as Array<{ type: string; text?: string }>;
-      const summary = content
-        .filter((b) => b.type === "text")
-        .map((b) => b.text)
-        .join(" ");
-      return { summary };
+      return { summary: response.choices[0]?.message.content ?? "" };
     },
   };
 

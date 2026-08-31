@@ -18,8 +18,11 @@ dashboard: a waterfall view of a single run, a side-by-side diff of two
 runs, and a scorecard grading runs against an eval suite.
 
 Everything here is original: the tracing SDK, the demo agent, and the eval
-harness are all built directly on the Anthropic Messages API, not a wrapper
-around an existing observability product or agent framework.
+harness are all built directly on Groq's (OpenAI-compatible) chat
+completions API, not a wrapper around an existing observability product or
+agent framework. Groq was chosen specifically because its free tier means
+the live demo, the eval harness, and CI's judge-calibration test all run
+for real, for free.
 
 ## Why this is real, not a demo
 
@@ -53,7 +56,7 @@ src/lib/
   tracing/           the instrumentation SDK - framework-agnostic, no
                       React/Next imports
     tracer.ts          Tracer: AsyncLocalStorage-based span nesting
-    anthropic.ts        wrapMessagesCreate() - one-line swap at a call site
+    groq.ts              wrapChatCompletion() - one-line swap at a call site
     toolLoop.ts          the standard call-model / execute-tools loop
     exporter.ts           buffers spans, flushes batched to /api/traces
   ingestion/         POST /api/traces handler - upserts the run, inserts
@@ -86,7 +89,7 @@ docker run -d --name loupe-postgres -p 5432:5432 \
 npm run db:migrate
 npm run db:seed          # seeds ~12 eval tasks
 
-# .env.local needs ANTHROPIC_API_KEY (see .env.local.example)
+# .env.local needs GROQ_API_KEY - free at console.groq.com (see .env.local.example)
 npm run dev               # dashboard at http://localhost:3000
 
 npm run demo-agent -- "How do I authenticate a webhook request?"
@@ -96,7 +99,7 @@ npm test
 
 ## Deliberately out of scope for v1
 
-- Multi-provider support - Anthropic only, no OpenAI/other SDKs.
+- Multi-provider support - Groq only, no Anthropic/OpenAI/other SDKs.
 - Real-time/live-streaming trace view - traces appear after the run
   completes, not tailed live.
 - Auth / multi-tenancy - single-user demo, like the rest of this portfolio.
@@ -105,9 +108,10 @@ npm test
 - True LCS-based diff alignment in the compare view - runs are aligned by
   step index, not by matching similar steps across a run with extra or
   missing steps.
-- `pricing.ts`'s per-model cost table is a hand-maintained estimate, not
-  wired to Anthropic's live pricing - useful for relative comparison
-  between runs, not as an authoritative bill.
+- `pricing.ts`'s cost table reflects Groq's free-tier pricing ($0) for the
+  models used here - the summing/estimation machinery is real and would
+  show real dollar figures against a paid model, it's just multiplying by
+  zero today.
 
 ## License
 

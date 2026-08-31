@@ -1,7 +1,7 @@
 import { getRun, getRunSpans } from "@/lib/queries/runs";
 import { Tracer } from "@/lib/tracing/tracer";
 import type { Exporter } from "@/lib/tracing/exporter";
-import type { AnthropicMessagesClient } from "@/lib/tracing/anthropic";
+import type { GroqChatClient } from "@/lib/tracing/groq";
 import { runAgentLoop, type ToolDefinition } from "@/lib/tracing/toolLoop";
 import { checkAssertions, type Assertion } from "./assertions";
 import { judgeOutput, type JudgeClient } from "./judge";
@@ -14,7 +14,7 @@ export interface EvalTaskInput {
 
 export interface RunEvalOptions {
   exporter: Exporter;
-  client: AnthropicMessagesClient;
+  client: GroqChatClient;
   judgeClient: JudgeClient;
   model: string;
   systemPrompt: string;

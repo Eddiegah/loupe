@@ -2,15 +2,15 @@ import { randomUUID } from "node:crypto";
 import { db, sql } from "../src/lib/db";
 import { evalTasks, evalResults } from "../src/lib/db/schema";
 import { createExporter } from "../src/lib/tracing/exporter";
-import { createAnthropicJudgeClient } from "../src/lib/evals/judge";
+import { createGroqJudgeClient } from "../src/lib/evals/judge";
 import { runEval } from "../src/lib/evals/runEval";
-import { createAnthropicClient, MODEL, SYSTEM_PROMPT } from "../demo-agent/agent";
+import { createGroqClient, MODEL, SYSTEM_PROMPT } from "../demo-agent/agent";
 import { createTools } from "../demo-agent/tools";
 import type { Assertion } from "../src/lib/evals/assertions";
 
 async function main() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set - copy .env.local.example to .env.local");
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY is not set - copy .env.local.example to .env.local");
 
   const tasks = await db.select().from(evalTasks);
   if (tasks.length === 0) {
@@ -18,8 +18,8 @@ async function main() {
     return;
   }
 
-  const client = createAnthropicClient(apiKey);
-  const judgeClient = createAnthropicJudgeClient();
+  const client = createGroqClient(apiKey);
+  const judgeClient = createGroqJudgeClient();
 
   console.log(`Running ${tasks.length} eval task(s)...\n`);
 

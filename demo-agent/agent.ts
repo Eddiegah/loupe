@@ -1,11 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { Tracer } from "../src/lib/tracing/tracer";
 import { createExporter } from "../src/lib/tracing/exporter";
 import { runAgentLoop } from "../src/lib/tracing/toolLoop";
-import type { AnthropicMessagesClient } from "../src/lib/tracing/anthropic";
+import type { GroqChatClient } from "../src/lib/tracing/groq";
 import { createTools } from "./tools";
 
-export const MODEL = "claude-sonnet-5";
+export const MODEL = "llama-3.3-70b-versatile";
 export const SYSTEM_PROMPT =
   "You are a support assistant for an internal REST API. Answer questions using the tools " +
   "available to you: search_docs to find relevant pages, fetch_detail to read one in full, " +
@@ -13,23 +13,25 @@ export const SYSTEM_PROMPT =
   "behavior that isn't in the docs - if you can't find something, say so rather than " +
   "inventing it.";
 
-export function createAnthropicClient(apiKey: string): AnthropicMessagesClient {
-  const anthropic = new Anthropic({ apiKey });
+export function createGroqClient(apiKey: string): GroqChatClient {
+  const groq = new Groq({ apiKey });
   return {
-    messages: {
-      async create(params) {
-        const response = await anthropic.messages.create(params as unknown as Parameters<typeof anthropic.messages.create>[0]);
-        return response as unknown as Awaited<ReturnType<AnthropicMessagesClient["messages"]["create"]>>;
+    chat: {
+      completions: {
+        async create(params) {
+          const response = await groq.chat.completions.create(params as unknown as Parameters<typeof groq.chat.completions.create>[0]);
+          return response as unknown as Awaited<ReturnType<GroqChatClient["chat"]["completions"]["create"]>>;
+        },
       },
     },
   };
 }
 
 export async function askAgent(question: string) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set - copy .env.local.example to .env.local");
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY is not set - copy .env.local.example to .env.local");
 
-  const client = createAnthropicClient(apiKey);
+  const client = createGroqClient(apiKey);
   const exporter = createExporter();
   const tracer = new Tracer(exporter);
   const tools = createTools({ tracer, client, model: MODEL });
