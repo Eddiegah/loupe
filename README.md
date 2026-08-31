@@ -2,12 +2,12 @@
 
 [![CI](https://github.com/Eddiegah/loupe/actions/workflows/ci.yml/badge.svg)](https://github.com/Eddiegah/loupe/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Live demo](https://img.shields.io/badge/demo-live-3ecf8e?logo=vercel&logoColor=white)](https://loupe.vercel.app)
+[![Live demo](https://img.shields.io/badge/demo-live-3ecf8e?logo=vercel&logoColor=white)](https://loupe-orcin.vercel.app)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)
 
-**[Live demo](https://loupe.vercel.app)**
+**[Live demo](https://loupe-orcin.vercel.app)**
 
 A flight recorder for AI agents. When an agent answers a question it takes a
 bunch of steps behind the scenes - search, read a doc, run a calculation,

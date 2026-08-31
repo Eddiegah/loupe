@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 const title = "Loupe";
 const description = "A flight recorder for AI agents - trace every LLM call and tool call, compare runs side by side, and grade agent behavior against an eval suite.";
-const url = "https://loupe.vercel.app";
+const url = "https://loupe-orcin.vercel.app";
 
 export const metadata: Metadata = {
   title,
