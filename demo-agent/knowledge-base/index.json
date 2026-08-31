@@ -1,0 +1,32 @@
+[
+  {
+    "id": "auth",
+    "title": "Authentication",
+    "summary": "How to authenticate API requests using an API key in the Authorization header."
+  },
+  {
+    "id": "users",
+    "title": "Users API",
+    "summary": "Endpoints for creating, reading, updating, and deleting user records."
+  },
+  {
+    "id": "payments",
+    "title": "Payments API",
+    "summary": "Creating charges and refunds, and using idempotency keys to avoid double charges."
+  },
+  {
+    "id": "webhooks",
+    "title": "Webhooks",
+    "summary": "Subscribing to events, verifying webhook signatures, and the retry policy for failed deliveries."
+  },
+  {
+    "id": "rate-limits",
+    "title": "Rate Limits",
+    "summary": "Default request-per-minute limits, the 429 response, and the Retry-After header."
+  },
+  {
+    "id": "error-codes",
+    "title": "Error Codes",
+    "summary": "The meaning of every HTTP status code the API returns, including the difference between 401 and 403."
+  }
+]

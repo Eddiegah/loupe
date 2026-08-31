@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Telemetry-instrument palette: cool graphite background, electric-cyan
+   accent for the "recording" identity, plus span-type and status tokens
+   so the trace waterfall reads at a glance without relying on color alone. */
+:root {
+  --background: #f4f6f8;
+  --surface: #ffffff;
+  --foreground: #16202b;
+  --muted: #5c6b78;
+  --border: #dde3e8;
+  --accent: #0891b2;
+  --accent-foreground: #ffffff;
+
+  --span-llm: #7c3aed;
+  --span-tool: #0891b2;
+  --status-success: #15803d;
+  --status-error: #b91c1c;
+  --status-running: #b45309;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-span-llm: var(--span-llm);
+  --color-span-tool: var(--span-tool);
+  --color-status-success: var(--status-success);
+  --color-status-error: var(--status-error);
+  --color-status-running: var(--status-running);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
