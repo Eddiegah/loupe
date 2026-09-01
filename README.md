@@ -24,6 +24,8 @@ agent framework. Groq was chosen specifically because its free tier means
 the live demo, the eval harness, and CI's judge-calibration test all run
 for real, for free.
 
+![A Loupe trace waterfall: each row is a real LLM call or tool call from a live run, with proportional duration bars and nested spans showing the agent searching docs, fetching detail pages, and reasoning between steps.](docs/dashboard.png)
+
 ## Why this is real, not a demo
 
 - **The LLM-as-judge is checked against known-good and known-bad answers,
