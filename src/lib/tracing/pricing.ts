@@ -5,8 +5,8 @@
 // price), it just multiplies by a zero rate. Swap in real per-model
 // pricing here if you point Loupe at a paid model or provider.
 export const MODEL_PRICING: Record<string, { inputPerMillion: number; outputPerMillion: number }> = {
-  "llama-3.3-70b-versatile": { inputPerMillion: 0, outputPerMillion: 0 },
-  "llama-3.1-8b-instant": { inputPerMillion: 0, outputPerMillion: 0 },
+  "openai/gpt-oss-120b": { inputPerMillion: 0, outputPerMillion: 0 },
+  "openai/gpt-oss-20b": { inputPerMillion: 0, outputPerMillion: 0 },
 };
 
 const DEFAULT_PRICING = { inputPerMillion: 0, outputPerMillion: 0 };

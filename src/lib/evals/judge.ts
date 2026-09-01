@@ -5,7 +5,7 @@ export interface JudgeVerdict {
   rationale: string;
 }
 
-const JUDGE_MODEL = process.env.LOUPE_JUDGE_MODEL ?? "llama-3.1-8b-instant";
+const JUDGE_MODEL = process.env.LOUPE_JUDGE_MODEL ?? "openai/gpt-oss-20b";
 
 function buildPrompt(rubric: string, output: string): string {
   return `You are grading an AI agent's answer against a rubric. Score strictly - do not be lenient.
@@ -41,12 +41,16 @@ export interface JudgeClient {
   };
 }
 
+const MAX_ATTEMPTS = 3;
+
 /** Scores an agent's output against a rubric using a Groq chat model as
- * judge (cheap/fast by default, see LOUPE_JUDGE_MODEL). Retries once on a
- * malformed response before giving up, since a strict-JSON instruction
- * occasionally still gets wrapped in prose. */
+ * judge (cheap/fast by default, see LOUPE_JUDGE_MODEL). Retries with a
+ * short backoff on a malformed response before giving up, since a
+ * strict-JSON instruction occasionally still gets wrapped in prose, and a
+ * free-tier rate limit can occasionally interrupt a request. */
 export async function judgeOutput(client: JudgeClient, rubric: string, output: string): Promise<JudgeVerdict> {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
     const response = await client.chat.completions.create({
       model: JUDGE_MODEL,
       max_tokens: 300,
@@ -55,7 +59,7 @@ export async function judgeOutput(client: JudgeClient, rubric: string, output: s
     const verdict = parseVerdict(response.choices[0]?.message.content ?? "");
     if (verdict) return verdict;
   }
-  throw new Error("Judge did not return a parseable verdict after 2 attempts");
+  throw new Error(`Judge did not return a parseable verdict after ${MAX_ATTEMPTS} attempts`);
 }
 
 export function createGroqJudgeClient(): JudgeClient {

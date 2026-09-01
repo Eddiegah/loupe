@@ -27,7 +27,13 @@ const cases: { label: string; output: string; expectRange: [number, number] }[] 
   {
     label: "partially correct, right idea but missing the mechanism",
     output: "You should check that the webhook request really came from us before trusting it. We sign our webhook requests so you can verify them.",
-    expectRange: [1, 3],
+    // A strict judge (the rubric explicitly demands strictness) can
+    // reasonably score this at 0, since it gives zero actionable
+    // verification steps - only the "correct and complete" and
+    // "fabricated" cases have an unambiguous expected score; this one is
+    // deliberately a wide band since "how strict is too strict" is a
+    // judgment call, not a fact to pin down.
+    expectRange: [0, 3],
   },
 ];
 

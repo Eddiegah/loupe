@@ -5,7 +5,7 @@ import { runAgentLoop } from "../src/lib/tracing/toolLoop";
 import type { GroqChatClient } from "../src/lib/tracing/groq";
 import { createTools } from "./tools";
 
-export const MODEL = "llama-3.3-70b-versatile";
+export const MODEL = "openai/gpt-oss-120b";
 export const SYSTEM_PROMPT =
   "You are a support assistant for an internal REST API. Answer questions using the tools " +
   "available to you: search_docs to find relevant pages, fetch_detail to read one in full, " +
